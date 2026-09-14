@@ -1,0 +1,4 @@
+Digi Bank Admin Credentials:
+URL: http://localhost:3000
+Admin Email: admin@digibank.com
+Admin Password: Admin@12345
