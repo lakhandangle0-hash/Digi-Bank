@@ -13,7 +13,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Set up Java Development Kit
+      - name: Set up Java
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
@@ -24,6 +24,83 @@ jobs:
         with:
           flutter-version: '3.19.0'
           channel: 'stable'
+
+      # Step to auto-create project if files are missing
+      - name: Ensure Flutter Project Structure
+        run: |
+          if [ ! -f "pubspec.yaml" ]; then
+            echo "Creating fresh Flutter project..."
+            flutter create . --org com.digibank --project-name digi_bank
+          fi
+
+      - name: Inject Digi Bank Code
+        run: |
+          mkdir -p lib
+          cat << 'EOF' > lib/main.dart
+          import 'package:flutter/material.dart';
+
+          void main() {
+            runApp(const DigiBankApp());
+          }
+
+          class DigiBankApp extends StatelessWidget {
+            const DigiBankApp({super.key});
+
+            @override
+            Widget build(BuildContext context) {
+              return MaterialApp(
+                title: 'Digi Bank',
+                debugShowCheckedModeBanner: false,
+                theme: ThemeData.dark().copyWith(
+                  scaffoldBackgroundColor: const Color(0xFF0F172A),
+                  primaryColor: const Color(0xFF2563EB),
+                  appBarTheme: const AppBarTheme(
+                    backgroundColor: Color(0xFF1E293B),
+                    elevation: 0,
+                  ),
+                ),
+                home: const DigiBankDashboard(),
+              );
+            }
+          }
+
+          class DigiBankDashboard extends StatelessWidget {
+            const DigiBankDashboard({super.key});
+
+            @override
+            Widget build(BuildContext context) {
+              return Scaffold(
+                appBar: AppBar(
+                  title: const Text("DIGI BANK", style: TextStyle(fontWeight: FontWeight.bold)),
+                ),
+                body: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFF1D4ED8), Color(0xFF3B82F6)],
+                      ),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: const Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text("DIGI BANK DIGITAL BALANCE", style: TextStyle(color: Colors.white70, fontSize: 12)),
+                        SizedBox(height: 10),
+                        Text("2,500.00 DIGI", style: TextStyle(color: Colors.white, fontSize: 30, fontWeight: FontWeight.bold)),
+                        SizedBox(height: 8),
+                        Text("Approx Value: ₹2,50,000 INR", style: TextStyle(color: Colors.white90, fontSize: 13)),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            }
+          }
+          EOF
 
       - name: Get Dependencies
         run: flutter pub get
